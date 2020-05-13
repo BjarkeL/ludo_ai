@@ -1,0 +1,3 @@
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/rebuild_cache.dir
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/edit_cache.dir
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir

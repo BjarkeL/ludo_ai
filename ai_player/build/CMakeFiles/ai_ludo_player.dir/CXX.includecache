@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../../ludo_game_code/Domain-Code/iplayer.h
+iostream
+-
+positions_and_dice.h
+../../ludo_game_code/Domain-Code/positions_and_dice.h
+
+../../ludo_game_code/Domain-Code/positions_and_dice.h
+
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/ai_player.cpp
+ai_player.h
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/ai_player.h
+
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/ai_player.h
+iplayer.h
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/iplayer.h
+iostream
+-
+vector
+-
+positions_and_dice.h
+/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/positions_and_dice.h
+random
+-
+
