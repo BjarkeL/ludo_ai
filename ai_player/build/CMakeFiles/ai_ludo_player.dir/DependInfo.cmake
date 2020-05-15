@@ -4,10 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/ai_player.cpp" "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/ai_player.cpp.o"
-  "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ludo_game_code/Domain-Code/game.cpp" "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ludo_game_code/Domain-Code/game.cpp.o"
-  "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ludo_game_code/Domain-Code/test_game.cpp" "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ludo_game_code/Domain-Code/test_game.cpp.o"
-  "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/main.cpp" "/home/bjarke/Documents/uni_8th_semester/tools_for_artificial_intelligence/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/main.cpp.o"
+  "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/ai_player.cpp" "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/ai_player.cpp.o"
+  "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ludo_game_code/Domain-Code/game.cpp" "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ludo_game_code/Domain-Code/game.cpp.o"
+  "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ludo_game_code/Domain-Code/test_game.cpp" "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ludo_game_code/Domain-Code/test_game.cpp.o"
+  "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/main.cpp" "/home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/build/CMakeFiles/ai_ludo_player.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

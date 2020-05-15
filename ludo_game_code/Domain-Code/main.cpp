@@ -18,6 +18,7 @@ int main()
     player_random player_2;
     player_random player_3;
 
+
     //Play a game of Ludo
     game g(&player_0, &player_1, &player_2, &player_3);
     g.play_game();
