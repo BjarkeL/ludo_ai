@@ -59,7 +59,7 @@ void AiPlayer::evolve_generation() {
         sorted_chromosomes.insert(std::pair<int, std::array<float,C_SIZE>>(scores[i], chromosomes[i]));
     }
 
-    if ((*sorted_chromosomes.begin()).first > best_chromosome.first) {
+    if ((*sorted_chromosomes.begin()).first >= best_chromosome.first) {
         best_chromosome = *sorted_chromosomes.begin();
         std::cout << "Best so far! " << best_chromosome.first << " wins." << std::endl;
     }
@@ -189,7 +189,7 @@ void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> 
     }
 
     new_generation.push_back(c1);
-    new_generation.push_back(c2);
+    // new_generation.push_back(c2);
     new_generation.push_back(tmp_c1);
     new_generation.push_back(tmp_c2);
     
