@@ -4,6 +4,8 @@ AiPlayer::AiPlayer() {
 
 }
 
+/******************** GA External ********************/
+
 void AiPlayer::init_chromosomes(int x) {
 
     moves.push_back([this](void){return this->move_out();});
@@ -15,23 +17,28 @@ void AiPlayer::init_chromosomes(int x) {
     moves.push_back([this](void){return this->beat_opponent_piece();});
 
     std::mt19937 generator(rd());
+    std::uniform_real_distribution<> dist(0.0,1.0);
 
     // x different chromosomes.
-    std::vector<int> tmp_chromosome;
     while (chromosomes.size() < x) {
-        tmp_chromosome.clear();
-        for (int j = 0; j < 7; j++) {
-            tmp_chromosome.push_back(j);
+        std::array<float,C_SIZE> tmp_chromosome;
+        for (int i = 0; i < C_SIZE; i++) {
+            tmp_chromosome[i] = dist(generator);
+            // std::cout << tmp_chromosome[i] << std::endl;
         }
-        std::shuffle(tmp_chromosome.begin(), tmp_chromosome.end(), generator);
-        if (std::find(chromosomes.begin(), chromosomes.end(), tmp_chromosome) == chromosomes.end()) {
-            chromosomes.push_back(tmp_chromosome);
-            scores.push_back(0);
-        }
+        // Very unlikely 52*4 values are the same when random between 0 and 1.
+        // if (std::find(chromosomes.begin(), chromosomes.end(), tmp_chromosome) == chromosomes.end()) {
+        //     chromosomes.push_back(tmp_chromosome);
+        //     scores.push_back(0);
+        // }
+        chromosomes.push_back(tmp_chromosome);
+        scores.push_back(0);
     }
 
+    best_chromosome = std::pair<int, std::array<float,C_SIZE>>(0, chromosomes[0]);
+
     // Open filestream
-    data_out.open("chromosome2.txt");
+    data_out.open("chromosome.txt");
     
 }
 
@@ -47,33 +54,24 @@ void AiPlayer::evolve_generation() {
     // Evolve by pairing chromosomes.
 
     // Sort the chromosomes based on score:
-    std::multimap<int, std::vector<int>, std::greater<int>> sorted_chromosomes;
+    sorted_chromosomes.clear();
     for (int i = 0; i < chromosomes.size(); i++) {
-        sorted_chromosomes.insert(std::pair<int, std::vector<int>>(scores[i], chromosomes[i]));
+        sorted_chromosomes.insert(std::pair<int, std::array<float,C_SIZE>>(scores[i], chromosomes[i]));
     }
 
-    data_out << (*sorted_chromosomes.begin()).first << ",";
-    for (auto i : (*sorted_chromosomes.begin()).second) {
-        data_out << i << ",";
+    if ((*sorted_chromosomes.begin()).first > best_chromosome.first) {
+        best_chromosome = *sorted_chromosomes.begin();
+        std::cout << "Best so far! " << best_chromosome.first << " wins." << std::endl;
     }
+
+    data_out << (*sorted_chromosomes.begin()).first << ","; // Prints the amount of wins.
+    // for (auto i : (*sorted_chromosomes.begin()).second) {
+    //     data_out << i << ",";
+    // }
     data_out << std::endl;
 
-    // std::cout << "Sorted chromosomes..." << std::endl;
-    int show_n = 10;
-    int x = 1;
-    for (auto c : sorted_chromosomes) {
-        // std::cout << c.first << ", ";
-        // for (auto i : c.second) {
-        //     std::cout << i;
-        // }
-        // std::cout << std::endl;
-        
-        if (x++ == show_n)
-            break;
-    }
-
-    std::multimap<int, std::vector<int>>::iterator sorted_iter1 = sorted_chromosomes.begin();
-    std::multimap<int, std::vector<int>>::iterator sorted_iter2 = sorted_chromosomes.begin();
+    std::multimap<int, std::array<float,C_SIZE>>::iterator sorted_iter1 = sorted_chromosomes.begin();
+    std::multimap<int, std::array<float,C_SIZE>>::iterator sorted_iter2 = sorted_chromosomes.begin();
     while (new_generation.size() < chromosomes.size()) {
         // std::cout << "New gen size: " << new_generation.size() << std::endl;
         ++sorted_iter2;
@@ -85,12 +83,11 @@ void AiPlayer::evolve_generation() {
     // Pick a random one to mutate
     std::mt19937 generator(rd());
     std::uniform_int_distribution<int> dist(0,chromosomes.size()-1);
-    int mutate = dist(generator);
+    int m = dist(generator);
     // Replace chromosomes with the new generation.
     for (int i = 0; i < chromosomes.size(); i++) {
-        if (i == mutate) {
-            // std::cout << "Mutating" << std::endl;
-            swap_genes(&new_generation[i]);
+        if (i == m) {
+            mutate(new_generation[i]);
         }
         chromosomes[i] = new_generation[i];
     }
@@ -100,6 +97,12 @@ void AiPlayer::evolve_generation() {
     std::fill(scores.begin(), scores.end(), 0);
     new_generation.clear();
 }
+
+void AiPlayer::set_learning(bool learn) {
+    learning = learn;
+}
+
+/******************** Automatic action for each turn ********************/
 
 int AiPlayer::make_decision() {
 
@@ -117,181 +120,247 @@ int AiPlayer::make_decision() {
         return options[0];
     }
 
-    position_vector.clear(); // Makes it possible to make range base for loops.
-    for (int i = 0; i < 16; i++) {
-        position_vector.push_back(position[i]);
+    // If there are more than one valid move use the network to determine next move.
+
+    // First get the input vector.
+    int input_index = 0;
+    for (int i = 0; i < 7; i++) {
+        std::array<bool, 4> tmp_status = moves[i]();
+        for (int j = 0; j < 4; j++) {
+            input_values[input_index++] = tmp_status[j];
+        }
     }
-
-    // If there are more than one valid move perform the strategy dictated by the chromosome.
-    // The chromosome shall either dictate whether to perform a move or what order to perform the moves.
-
-    int piece_to_move = process_chromosome(chromosomes[current_chromosome]);
-
-    if (piece_to_move == -1) {
-        std::mt19937 generator(rd());
-        std::uniform_int_distribution<int> dist(0,options.size()-1);
-        piece_to_move = options[dist(generator)];
-    }
-    
-    return piece_to_move;
-}
-
-int AiPlayer::process_chromosome(std::vector<int> c) {
-    
-    // std::cout << "Running the functions in the order: " << std::endl;
-    // for (int i = 0; i < 7; i++) {
-    //     std::cout << c[i];
-    // }
-    // std::cout << std::endl;
-    int move;
-    for (auto i : c) {
-        move = moves[i]();
-        // std::cout << move << std::endl;
-        if (move != -1) {
-            break;
+    for (int i = 0; i < 4; i++) {
+        std::array<bool, 6> tmp_status = dist_to_goal(i);
+        for (int j = 0; j < 6; j++) {
+            input_values[input_index++] = tmp_status[j];
         }
     }
 
+    // Then calculate the output
+
+    int chromosome_index = 0;
+    if (learning) {
+        for (int i = 0; i < OUTPUTS; i++) {
+            for (int j = 0; j < INPUTS; j++) {
+                output_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
+            }
+        }
+    } else {
+        for (int i = 0; i < OUTPUTS; i++) {
+            for (int j = 0; j < INPUTS; j++) {
+                output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
+            }
+        }
+    }
+
+    int move = options[0];
+    float val = output_values[move];
+    for (int i : options) {
+        if (output_values[i] > val) {
+            val = output_values[i];
+            move = i;
+        }
+    }
+    
+    std::fill(output_values.begin(), output_values.end(), 0);
+    
     return move;
 }
 
-void AiPlayer::crossover(std::vector<int> c1, std::vector<int> c2) {
+/******************** GA Internal ********************/
+
+void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> c2) {
     std::mt19937 generator(rd());
-    std::uniform_int_distribution<int> dist(1,c1.size()-2);
+    std::uniform_int_distribution<int> dist(1,c1.size()-1);
 
     int crossover_point = dist(generator);
 
-    std::vector<int> tmp_c1;
-    std::vector<int> tmp_c2;
-    for (int i = 0; i < crossover_point; i++) {
-        tmp_c1.push_back(c1[i]);
-        tmp_c2.push_back(c2[i]);
-    }
-
-    for (auto c : c1) {
-        if (std::find(tmp_c2.begin(), tmp_c2.end(), c) == tmp_c2.end())
-            tmp_c2.push_back(c);
-    }
-    for (auto c : c2) {
-        if (std::find(tmp_c1.begin(), tmp_c1.end(), c) == tmp_c1.end())
-            tmp_c1.push_back(c);
+    std::array<float,C_SIZE> tmp_c1;
+    std::array<float,C_SIZE> tmp_c2;
+    for (int i = 0; i < c1.size(); i++) {
+        if (i < crossover_point) {
+            tmp_c1[i] = c1[i];
+            tmp_c2[i] = c2[i];
+        } else {
+            tmp_c1[i] = c2[i];
+            tmp_c2[i] = c1[i];
+        }
     }
 
     new_generation.push_back(c1);
     new_generation.push_back(c2);
     new_generation.push_back(tmp_c1);
     new_generation.push_back(tmp_c2);
-
-    // std::cout << "Crossover point: " << crossover_point << std::endl;
-    // std::cout << "c1 -> tmp_c1:" << std::endl << "c1: ";
-    // for (auto i : c1)
-    //     std::cout << i;
-    // std::cout << std::endl << "tmp_c1: ";
-    // for (auto i : tmp_c1)
-    //     std::cout << i;
-    // std::cout << std::endl;
-
-    // std::cout << "c2 -> tmp_c2:" << std::endl << "c2: ";
-    // for (auto i : c2)
-    //     std::cout << i;
-    // std::cout << std::endl << "tmp_c2: ";
-    // for (auto i : tmp_c2)
-    //     std::cout << i;
-    // std::cout << std::endl;
     
 }
 
-void AiPlayer::swap_genes(std::vector<int>* c) {
+void AiPlayer::mutate(std::array<float,C_SIZE>& c) {
+    // Alter 10% of the genes randomly.
+    int n_mutations = std::ceil(c.size()*0.1);
     std::mt19937 generator(rd());
-    std::uniform_int_distribution<int> dist(0,c->size()-1);
+    std::uniform_int_distribution<int> dist1(0,C_SIZE-1);
+    std::uniform_real_distribution<> dist2(0.1,0.5);
+    // Generate n indices
+    std::vector<int> indices(n_mutations);
+    std::generate(indices.begin(),indices.end(),[dist1, generator] () mutable { return dist1(generator); });
 
-    int gene1 = dist(generator);
-    int gene2 = dist(generator);
-    while (gene2 == gene1) {
-        gene2 = dist(generator);
+    for (auto i : indices) {
+        // std::cout << i << ", " << (*c)[i] << ", " << (*c)[i]*dist2(generator) << std::endl;
+        // (*c)[i] *= dist2(generator);
+        float random_val = dist2(generator);
+        c[i] = c[i]+random_val < 1.0 ? c[i]+random_val : c[i]-random_val;
     }
-    // std::cout << "Swaps:" << std::endl << "G1: " << gene1 << ", G2: " << gene2 << std::endl;
-    std::iter_swap(c->begin()+gene1, c->begin()+gene2);
 }
 
-int AiPlayer::move_out() {
+/******************** Information Collection ********************/
+
+std::array<bool,4> AiPlayer::move_out() {
     // std::cout << "out" << dice << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        if (piece_pos == -1) {
-            return options[i];
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        if (position[i] == -1) {
+            status[i] = true;
+        } else {
+            status[i] = false;
         }
     }
-    return -1;
+    return status;
 }
 
-int AiPlayer::move_in() {
+std::array<bool,4> AiPlayer::move_in() {
     // std::cout << "in" << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        if (piece_pos <= 50 && piece_pos + dice > 50) {
-            return options[i];
-        } 
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        if (position[i] <= 50 && position[i] + dice > 50) {
+            status[i] = true;
+        } else {
+            status[i] = false;
+        }
     }
-    return -1;
+    return status;
 }
 
-int AiPlayer::move_to_goal() {
+std::array<bool,4> AiPlayer::move_to_goal() {
     // std::cout << "goal" << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        if (piece_pos + dice == 56) {
-            return options[i];
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        if (position[i] + dice == 56) {
+            status[i] = true;
+        } else {
+            status[i] = false;
         }
     }
-    return -1;
+    return status;
 }
 
-int AiPlayer::move_to_globe() {
+std::array<bool,4> AiPlayer::move_to_globe() {
     // std::cout << "globe" << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        if (std::find(globe_positions.begin(), globe_positions.end(), piece_pos + dice) != globe_positions.end()) {
-            return options[i];
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        if (std::find(globe_positions.begin(), globe_positions.end(), position[i] + dice) != globe_positions.end()) {
+            status[i] = true;
+        } else {
+            status[i] = false;
         }
     }
-    return -1;
+    return status;
 }
 
-int AiPlayer::move_to_star() {
+std::array<bool,4> AiPlayer::move_to_star() {
     // std::cout << "star" << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        if (std::find(star_positions.begin(), star_positions.end(), piece_pos + dice) != star_positions.end()) {
-            return options[i];
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        if (position[i] != -1) {
+            if (std::find(star_positions.begin(), star_positions.end(), position[i] + dice) != star_positions.end()) {
+                status[i] = true;
+            } else {
+                status[i] = false;
+            }
+        } else {
+            status[i] = false;
         }
     }
-    return -1;
+    return status;
 }
 
-int AiPlayer::stack_piece() {
+std::array<bool,4> AiPlayer::stack_piece() {
     // std::cout << "stack" << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        for (int j = 0; j < options.size(); j++) {
-            int other_piece = position[options[j]];
-            if (i != j && piece_pos + dice == other_piece) {
-                return options[i];
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (i != j && position[i] != -1 && position[i] + dice == position[j] && position[i] + dice < 51) {
+                status[i] = true;
+                break;
+            } else {
+                status[i] = false;
             }
         }
     }
-    return -1;
+    return status;
 }
 
-int AiPlayer::beat_opponent_piece() {
+std::array<bool,4> AiPlayer::beat_opponent_piece() {
     // std::cout << "beat opponent" << std::endl;
-    for (int i = 0; i < options.size(); i++) {
-        int piece_pos = position[options[i]];
-        for (auto it = position_vector.begin()+4; it != position_vector.end(); ++it) {
-            if (*it < 51 && piece_pos + dice == *it) {
-                return options[i];
+
+    // Find pieces that can beat an opponent:
+    std::array<bool,4> status;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 4; j < 16; j++) {
+            if (position[j] < 51 && position[i] + dice == position[j]) {
+                if (count_opponents(position[i]+dice) < 2 && on_globus(position[i]+dice) == false) {
+                    status[i] = true;
+                } else {
+                    status[i] = false;
+                }
+                break;
+            } else {
+                status[i] = false;
             }
         }
     }
-    return -1;
+    // std::cout << "Dice: " << dice << ", Status:" << std::endl;
+    // for (int i = 0; i < 4; i++) {
+    //     std::cout << status[i];
+    // }
+    // std::cout << std::endl;
+    return status;
+}
+
+std::array<bool,6> AiPlayer::dist_to_goal(int piece) {
+
+    BinaryVal distance;
+
+    if (56-position[piece] < 0) {
+        distance.set_val(0);
+    } else {
+        distance.set_val(56-position[piece]);
+    }
+    
+    std::array<bool,6> dist;
+    for (int i = 0; i < 6; i++) {
+        dist[i] = distance[i];
+    }
+
+    distance.destroy();
+
+    return dist;
+}
+
+int AiPlayer::count_opponents(int square) {
+    int n = 0;
+    for (int i = 4; i < 16; i++) {
+        if (position[i] == square) {
+            n++;
+        }
+    }
+    return n;
+}
+
+bool AiPlayer::on_globus(int square) {
+    if (std::find(globe_positions.begin(), globe_positions.end(), square) != globe_positions.end()) {
+        return true;
+    } else {
+        return false;
+    }
 }

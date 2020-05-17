@@ -5,7 +5,7 @@
 #include "player_random.h"
 #include "ai_player.h"
 
-using namespace std;
+// using namespace std;
 
 int main()
 {
@@ -20,8 +20,8 @@ int main()
     player_random player_2;
     player_random player_3;
 
-    int population = 10;
-    int games_per_generation = 100;
+    int population = 50;
+    int games_per_generation = 1000;
 
     player_0.init_chromosomes(population);
     
@@ -29,11 +29,10 @@ int main()
     game g(&player_0, &player_1, &player_2, &player_3);
     // g.play_game();
     // cout << "Player " << g.get_winner() << " won the game!" << endl << endl;
-    
 
     //Play many games of Ludo
-    int wins[] = {0, 0, 0, 0};
-    for (int j = 0; j < 1000; j++) {
+    // int wins[] = {0, 0, 0, 0};
+    for (int j = 0; j < 50; j++) {
 
         for (int i = 0; i < population*games_per_generation; i++)
         {
@@ -50,16 +49,35 @@ int main()
                 // std::cout << "Incrementing chromosome" << std::endl;
                 player_0.inc_current_chromosome();
             }
+            // std::cout << "***** New Game *****" << std::endl;
         }
         // Update the generation based on the points.
         player_0.evolve_generation();
         std::cout << j << std::endl;
     }
-    for(int i = 0; i < 4; i++)
-        cout << "Player " << i << " won " << wins[i] << " games." << endl;
+
+    player_0.set_learning(false);
+
+    int trial_games = 100000;
+    int wins = 0;
+    for (int i = 0; i < trial_games; i++) {
+        g.reset();
+        g.set_first(i%4); //alternate who starts the game
+        g.play_game();
+        
+        if (g.get_winner() == 0) {
+            wins++;
+        }
+    }
+
+    std::cout << "The AI won " << wins << " times." << std::endl;
+    std::cout << "Equal to " << (float)wins/trial_games*100 << "% winrate." << std::endl;
+
+    // for(int i = 0; i < 4; i++)
+    //     cout << "Player " << i << " won " << wins[i] << " games." << endl;
 
 
-    cout << "End of main" << endl;
+    std::cout << "End of main" << std::endl;
     return 0;
 }
 
