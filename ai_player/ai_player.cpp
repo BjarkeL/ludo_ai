@@ -178,7 +178,7 @@ void AiPlayer::crossover(std::vector<int> c1, std::vector<int> c2) {
     }
 
     new_generation.push_back(c1);
-    new_generation.push_back(c2);
+    // new_generation.push_back(c2);
     new_generation.push_back(tmp_c1);
     new_generation.push_back(tmp_c2);
 
