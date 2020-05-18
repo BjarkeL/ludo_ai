@@ -20,8 +20,8 @@ int main()
     player_random player_2;
     player_random player_3;
 
-    int population = 50;
-    int games_per_generation = 500;
+    int population = 12;
+    int games_per_generation = 250;
 
     player_0.init_chromosomes(population);
     

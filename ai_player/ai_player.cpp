@@ -84,6 +84,9 @@ void AiPlayer::evolve_generation() {
     std::mt19937 generator(rd());
     std::uniform_int_distribution<int> dist(0,chromosomes.size()-1);
     int m = dist(generator);
+    while (m%3 == 0) {
+        m = dist(generator);
+    }
     // Replace chromosomes with the new generation.
     for (int i = 0; i < chromosomes.size(); i++) {
         if (i == m) {
