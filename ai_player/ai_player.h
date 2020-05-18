@@ -15,10 +15,8 @@
 
 #define INPUTS 36
 #define OUTPUTS 4
-#define HIDDEN_SIZE 30
-#define WEIGHTS1 INPUTS*HIDDEN_SIZE
-#define WEIGHTS2 HIDDEN_SIZE*OUTPUTS
-#define C_SIZE WEIGHTS1+WEIGHTS2 // Size of a chromosome.
+#define WEIGHTS1 INPUTS*OUTPUTS
+#define C_SIZE WEIGHTS1 // Size of a chromosome.
 
 
 struct BinaryVal {
@@ -174,7 +172,6 @@ private:
 
     // Network:
     std::array<bool, INPUTS> input_values;
-    std::array<float, HIDDEN_SIZE> hidden_values;
     std::array<float, OUTPUTS> output_values;
 
     std::vector<std::function<std::array<bool,4>()>> moves;

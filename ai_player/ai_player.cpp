@@ -39,7 +39,7 @@ void AiPlayer::init_chromosomes(int x) {
     best_chromosome = std::pair<int, std::array<float,C_SIZE>>(0, chromosomes[0]);
 
     // Open filestream
-    data_out.open("chromosome.txt");
+    // data_out.open("chromosome.txt");
     
 }
 
@@ -149,42 +149,16 @@ int AiPlayer::make_decision() {
     int chromosome_index = 0;
     if (learning) {
         // Input to hidden layer.
-        // for (int i = 0; i < OUTPUTS; i++) {
-        //     for (int j = 0; j < INPUTS; j++) {
-        //         hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
-        //     }
-        // }
-
-        // Input to hidden layer.
-        for (int i = 0; i < HIDDEN_SIZE; i++) {
-            for (int j = 0; j < INPUTS; j++) {
-                hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
-            }
-        }
-        // Hidden layer to output.
         for (int i = 0; i < OUTPUTS; i++) {
-            for (int j = 0; j < HIDDEN_SIZE; j++) {
-                output_values[i] += chromosomes[current_chromosome][chromosome_index++]*hidden_values[j];
+            for (int j = 0; j < INPUTS; j++) {
+                output_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
             }
         }
     } else {
         // Input to output.
-        // for (int i = 0; i < OUTPUTS; i++) {
-        //     for (int j = 0; j < INPUTS; j++) {
-        //         output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
-        //     }
-        // }
-
-        // Input to hidden layer.
-        for (int i = 0; i < HIDDEN_SIZE; i++) {
-            for (int j = 0; j < INPUTS; j++) {
-                hidden_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
-            }
-        }
-        // Hidden layer to output.
         for (int i = 0; i < OUTPUTS; i++) {
-            for (int j = 0; j < HIDDEN_SIZE; j++) {
-                output_values[i] += best_chromosome.second[chromosome_index++]*hidden_values[j];
+            for (int j = 0; j < INPUTS; j++) {
+                output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
             }
         }
     }
@@ -204,7 +178,6 @@ int AiPlayer::make_decision() {
     // threat_behind();
     // dist_to_goal2(0);
 
-    std::fill(hidden_values.begin(), hidden_values.end(), 0);
     std::fill(output_values.begin(), output_values.end(), 0);
     
     return move;
@@ -239,10 +212,10 @@ void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> 
 
 void AiPlayer::mutate(std::array<float,C_SIZE>& c) {
     // Alter 10% of the genes randomly.
-    int n_mutations = std::ceil(c.size()*0.1);
+    int n_mutations = std::ceil(c.size()*0.2); // 0.1
     std::mt19937 generator(rd());
     std::uniform_int_distribution<int> dist1(0,C_SIZE-1);
-    std::uniform_real_distribution<> dist2(0.1,0.5);
+    std::uniform_real_distribution<> dist2(0.05,0.5); // 0.1 - 0.5
     // Generate n indices
     std::vector<int> indices(n_mutations);
     std::generate(indices.begin(),indices.end(),[dist1, generator] () mutable { return dist1(generator); });
