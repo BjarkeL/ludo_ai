@@ -20,9 +20,9 @@ int main()
     player_random player_2;
     player_random player_3;
 
-    int population = 12;
-    int games_per_generation = 250;
-    int n_generations = 100;
+    int population = 15;
+    int games_per_generation = 500;
+    int n_generations = 250;
 
     player_0.init_chromosomes(population);
     
@@ -57,9 +57,8 @@ int main()
         std::cout << j << std::endl;
     }
 
-    player_0.set_learning(false);
-
     int trial_games = 100000;
+    
     int wins = 0;
     for (int i = 0; i < trial_games; i++) {
         g.reset();
@@ -71,7 +70,23 @@ int main()
         }
     }
 
-    std::cout << "The AI won " << wins << " times." << std::endl;
+    std::cout << "The last gen AI won " << wins << " times." << std::endl;
+    std::cout << "Equal to " << (float)wins/trial_games*100 << "% winrate." << std::endl;
+
+    player_0.set_learning(false);
+
+    wins = 0;
+    for (int i = 0; i < trial_games; i++) {
+        g.reset();
+        g.set_first(i%4); //alternate who starts the game
+        g.play_game();
+        
+        if (g.get_winner() == 0) {
+            wins++;
+        }
+    }
+
+    std::cout << "The best AI won " << wins << " times." << std::endl;
     std::cout << "Equal to " << (float)wins/trial_games*100 << "% winrate." << std::endl;
 
     // for(int i = 0; i < 4; i++)

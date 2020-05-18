@@ -148,20 +148,48 @@ int AiPlayer::make_decision() {
 
     int chromosome_index = 0;
     if (learning) {
-        for (int i = 0; i < OUTPUTS; i++) {
+        // Input to hidden layer.
+        // for (int i = 0; i < OUTPUTS; i++) {
+        //     for (int j = 0; j < INPUTS; j++) {
+        //         hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
+        //     }
+        // }
+
+        // Input to hidden layer.
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
             for (int j = 0; j < INPUTS; j++) {
-                output_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
+                hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
+            }
+        }
+        // Hidden layer to output.
+        for (int i = 0; i < OUTPUTS; i++) {
+            for (int j = 0; j < HIDDEN_SIZE; j++) {
+                output_values[i] += chromosomes[current_chromosome][chromosome_index++]*hidden_values[j];
             }
         }
     } else {
-        for (int i = 0; i < OUTPUTS; i++) {
+        // Input to output.
+        // for (int i = 0; i < OUTPUTS; i++) {
+        //     for (int j = 0; j < INPUTS; j++) {
+        //         output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
+        //     }
+        // }
+
+        // Input to hidden layer.
+        for (int i = 0; i < HIDDEN_SIZE; i++) {
             for (int j = 0; j < INPUTS; j++) {
-                output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
+                hidden_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
+            }
+        }
+        // Hidden layer to output.
+        for (int i = 0; i < OUTPUTS; i++) {
+            for (int j = 0; j < HIDDEN_SIZE; j++) {
+                output_values[i] += best_chromosome.second[chromosome_index++]*hidden_values[j];
             }
         }
     }
     // for (auto i : output_values)
-    //     std::cout << i;
+    //     std::cout << i << ", ";
     // std::cout << std::endl;
 
     int move = options[0];
@@ -176,6 +204,7 @@ int AiPlayer::make_decision() {
     // threat_behind();
     // dist_to_goal2(0);
 
+    std::fill(hidden_values.begin(), hidden_values.end(), 0);
     std::fill(output_values.begin(), output_values.end(), 0);
     
     return move;
