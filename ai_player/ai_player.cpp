@@ -134,9 +134,42 @@ int AiPlayer::make_decision() {
             input_values[input_index++] = tmp_status[j];
         }
     }
-    for (int i = 0; i < 4; i++) {
-        input_values[input_index++] = dist_to_goal2(i);
+
+    // Temporary inputs splitting the input to individual pieces.
+    std::array<float, INPUTS> tmp_input1;
+    std::array<float, INPUTS> tmp_input2;
+    std::array<float, INPUTS> tmp_input3;
+    std::array<float, INPUTS> tmp_input4;
+    int index = 0;
+    for (int j = 0; j < INPUTS-1; j++) {
+        tmp_input1[j] = input_values[index];
+        tmp_input2[j] = input_values[index+1];
+        tmp_input3[j] = input_values[index+2];
+        tmp_input4[j] = input_values[index+3];
     }
+    tmp_input1[8] = dist_to_goal2(0);
+    tmp_input2[8] = dist_to_goal2(1);
+    tmp_input3[8] = dist_to_goal2(2);
+    tmp_input4[8] = dist_to_goal2(3);
+    
+    std::array<float, INPUTS*4> ordered_input;
+    index = 0;
+    for (int i = 0; i < INPUTS; i++) {
+        ordered_input[index++] = tmp_input1[i];
+    }
+    for (int i = 0; i < INPUTS; i++) {
+        ordered_input[index++] = tmp_input2[i];
+    }
+    for (int i = 0; i < INPUTS; i++) {
+        ordered_input[index++] = tmp_input3[i];
+    }
+    for (int i = 0; i < INPUTS; i++) {
+        ordered_input[index++] = tmp_input4[i];
+    }
+
+    // for (int i = 0; i < 4; i++) {
+    //     input_values[input_index++] = dist_to_goal2(i);
+    // }
     // for (int i = 0; i < 4; i++) {
     //     std::array<bool, 6> tmp_status = dist_to_goal(i);
     //     for (int j = 0; j < 6; j++) {
@@ -147,20 +180,36 @@ int AiPlayer::make_decision() {
     // Then calculate the output
 
     int chromosome_index = 0;
+    input_index = 0;
     if (learning) {
+
+        // Go through the options to index on output values.
+        for (auto op : options) {
+            for (int j = 0; j < C_SIZE; j++) {
+                output_values[op] += chromosomes[current_chromosome][j]*ordered_input[input_index++];
+            }
+        }
+
         // Input to hidden layer.
-        for (int i = 0; i < OUTPUTS; i++) {
-            for (int j = 0; j < INPUTS; j++) {
-                output_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
-            }
-        }
+        // for (int i = 0; i < OUTPUTS; i++) {
+        //     for (int j = 0; j < INPUTS; j++) {
+        //         output_values[i] += chromosomes[current_chromosome][chromosome_index++]*input_values[j];
+        //     }
+        // }
     } else {
-        // Input to output.
-        for (int i = 0; i < OUTPUTS; i++) {
-            for (int j = 0; j < INPUTS; j++) {
-                output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
+
+        for (auto op : options) {
+            for (int j = 0; j < C_SIZE; j++) {
+                output_values[op] += best_chromosome.second[j]*ordered_input[input_index++];
             }
         }
+
+        // Input to output.
+        // for (int i = 0; i < OUTPUTS; i++) {
+        //     for (int j = 0; j < INPUTS; j++) {
+        //         output_values[i] += best_chromosome.second[chromosome_index++]*input_values[j];
+        //     }
+        // }
     }
     // for (auto i : output_values)
     //     std::cout << i << ", ";

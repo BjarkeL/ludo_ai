@@ -13,8 +13,9 @@
 #include <array>
 
 
-#define INPUTS 36
+#define INPUTS 9
 #define OUTPUTS 4
+#define ALL_PIECES INPUTS*OUTPUTS
 #define WEIGHTS1 INPUTS*OUTPUTS
 #define C_SIZE WEIGHTS1 // Size of a chromosome.
 
@@ -171,7 +172,7 @@ private:
     std::vector<int> scores;
 
     // Network:
-    std::array<bool, INPUTS> input_values;
+    std::array<float, ALL_PIECES> input_values;
     std::array<float, OUTPUTS> output_values;
 
     std::vector<std::function<std::array<bool,4>()>> moves;
