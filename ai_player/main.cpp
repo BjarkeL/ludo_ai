@@ -22,6 +22,7 @@ int main()
 
     int population = 12;
     int games_per_generation = 250;
+    int n_generations = 100;
 
     player_0.init_chromosomes(population);
     
@@ -32,7 +33,7 @@ int main()
 
     //Play many games of Ludo
     // int wins[] = {0, 0, 0, 0};
-    for (int j = 0; j < 100; j++) {
+    for (int j = 0; j < n_generations; j++) {
 
         for (int i = 0; i < population*games_per_generation; i++)
         {

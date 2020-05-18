@@ -13,7 +13,7 @@
 #include <array>
 
 
-#define INPUTS 52
+#define INPUTS 36
 #define OUTPUTS 4
 #define WEIGHTS1 INPUTS*OUTPUTS
 #define C_SIZE WEIGHTS1 // Size of a chromosome.
@@ -139,6 +139,11 @@ private:
     std::array<bool,6> dist_to_goal(int piece);
 
     /**
+     * Return the distance to the goal as value between 0 and 1.
+     * */
+    float dist_to_goal2(int piece);
+
+    /**
      * Return the number of opponents on a given square.
      * */
     int count_opponents(int square);
@@ -147,6 +152,11 @@ private:
      * Return true if the square is a globus.
      * */
     bool on_globus(int square);
+
+    /**
+     * Returns true if there is an enemy within 6 behind you.
+     * */
+    std::array<bool,4> threat_behind();
 
     std::vector<int> options;
     std::vector<int> position_vector;

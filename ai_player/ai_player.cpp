@@ -15,6 +15,7 @@ void AiPlayer::init_chromosomes(int x) {
     moves.push_back([this](void){return this->move_to_star();});
     moves.push_back([this](void){return this->stack_piece();});
     moves.push_back([this](void){return this->beat_opponent_piece();});
+    moves.push_back([this](void){return this->threat_behind();});
 
     std::mt19937 generator(rd());
     std::uniform_real_distribution<> dist(0.0,1.0);
@@ -127,18 +128,21 @@ int AiPlayer::make_decision() {
 
     // First get the input vector.
     int input_index = 0;
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 8; i++) {
         std::array<bool, 4> tmp_status = moves[i]();
         for (int j = 0; j < 4; j++) {
             input_values[input_index++] = tmp_status[j];
         }
     }
     for (int i = 0; i < 4; i++) {
-        std::array<bool, 6> tmp_status = dist_to_goal(i);
-        for (int j = 0; j < 6; j++) {
-            input_values[input_index++] = tmp_status[j];
-        }
+        input_values[input_index++] = dist_to_goal2(i);
     }
+    // for (int i = 0; i < 4; i++) {
+    //     std::array<bool, 6> tmp_status = dist_to_goal(i);
+    //     for (int j = 0; j < 6; j++) {
+    //         input_values[input_index++] = tmp_status[j];
+    //     }
+    // }
 
     // Then calculate the output
 
@@ -156,6 +160,9 @@ int AiPlayer::make_decision() {
             }
         }
     }
+    // for (auto i : output_values)
+    //     std::cout << i;
+    // std::cout << std::endl;
 
     int move = options[0];
     float val = output_values[move];
@@ -166,6 +173,9 @@ int AiPlayer::make_decision() {
         }
     }
     
+    // threat_behind();
+    // dist_to_goal2(0);
+
     std::fill(output_values.begin(), output_values.end(), 0);
     
     return move;
@@ -350,6 +360,21 @@ std::array<bool,6> AiPlayer::dist_to_goal(int piece) {
     return dist;
 }
 
+float AiPlayer::dist_to_goal2(int piece) {
+
+    float dist;
+
+    if (56-position[piece] < 0) {
+        dist = 0;
+    } else {
+        dist = (56-position[piece])/57.;
+    }
+    
+    // std::cout << dist << std::endl;
+
+    return dist;
+}
+
 int AiPlayer::count_opponents(int square) {
     int n = 0;
     for (int i = 4; i < 16; i++) {
@@ -366,4 +391,40 @@ bool AiPlayer::on_globus(int square) {
     } else {
         return false;
     }
+}
+
+std::array<bool,4> AiPlayer::threat_behind() {
+    std::array<bool,4> status;
+
+    for (int i = 0; i < 4; i++) {
+        if (position[i] != -1) {
+
+            // std::cout << "Piece " << i << ", position: " << position[i];
+            int trail = position[i]-6 < 0 ? 51-6+position[i]+1: position[i]-6;
+            // std::cout << ", trail: " << trail << std::endl;
+            for (int j = 4; j < 16; j++) {
+                if (trail < position[i]) {
+                    status[i] = position[j] > trail && position[j] < position[i] ? true : false;
+                } else {
+                    if (position[j] > trail && position[j] <= 51) {
+                        status[i] = true;
+                        break;
+                    } else if (position[j] < position[i] && position[j] >= 0) {
+                        status[i] = true;
+                        break;
+                    } else {
+                        status[i] = false;
+                    }
+                }
+            }
+
+        } else {
+            status[i] = false;
+        }
+    }
+    // for (auto i : status)
+    //     std::cout << i;
+    // std::cout << std::endl;
+
+    return status;
 }
