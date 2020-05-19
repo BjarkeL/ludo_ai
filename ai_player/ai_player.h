@@ -171,7 +171,7 @@ private:
     std::vector<int> scores;
 
     // Network:
-    std::array<bool, INPUTS> input_values;
+    std::array<float, INPUTS> input_values;
     std::array<float, OUTPUTS> output_values;
 
     std::vector<std::function<std::array<bool,4>()>> moves;
