@@ -21,9 +21,9 @@ int main()
     player_random player_2;
     player_random player_3;
 
-    int population = 45; // 30
-    int games_per_generation = 100; // 100
-    int n_generations = 2000; // 1000
+    int population = 30; // 30
+    int games_per_generation = 50; // 100
+    int n_generations = 250; // 1000
 
     player_0.init_chromosomes(population);
     // player_1.init_chromosomes(population);
@@ -63,7 +63,7 @@ int main()
         std::cout << j << std::endl;
     }
 
-    int trial_games = 100000;
+    int trial_games = 10000;
     
     int wins_1 = 0;
     int wins_2 = 0;

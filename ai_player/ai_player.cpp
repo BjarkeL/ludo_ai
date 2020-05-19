@@ -37,6 +37,8 @@ void AiPlayer::init_chromosomes(int x) {
         scores.push_back(0);
     }
 
+    std::fill(hidden_values.begin(), hidden_values.end(), 0);
+
     best_chromosome = std::pair<int, std::array<float,C_SIZE>>(0, chromosomes[0]);
 
     // Open filestream
@@ -125,20 +127,35 @@ int AiPlayer::make_decision() {
     for (auto op : options) {
         current_square = position[op];
         // std::cout << "Option: " << op << ", pos: " << current_square << ", func val: ";
-        // Input to output directly.
+
         int chromosome_index = 0;
-        if (learning) {
-            for (auto func : moves) {
-                output_values[op] += chromosomes[current_chromosome][chromosome_index++]*func();
-                // std::cout << func() << ", ";
-            }
-        } else {
-            for (auto func : moves) {
-                output_values[op] += best_chromosome.second[chromosome_index++]*func();
+        for (auto func : moves) {
+            for (int i = 0; i < HIDDEN; i++) {
+                hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*func()-0.05; // Bias should be with a weight?...
             }
         }
+        for (int i = 0; i < HIDDEN; i++) {
+            output_values[op] += chromosomes[current_chromosome][chromosome_index++]*sigmoid(hidden_values[i]);
+        }
+        
+        // Input to output directly.
+        // if (learning) {
+        //     for (auto func : moves) {
+        //         output_values[op] += chromosomes[current_chromosome][chromosome_index++]*func();
+        //         // std::cout << func() << ", ";
+        //     }
+        // } else {
+        //     for (auto func : moves) {
+        //         output_values[op] += best_chromosome.second[chromosome_index++]*func();
+        //     }
+        // }
         // std::cout << std::endl;
     }
+    // std::cout << "Hidden:" << std::endl;
+    // for (auto x : hidden_values) {
+    //     std::cout << sigmoid(x) << ", " << x << ", ";
+    // }
+    // std::cout << std::endl;
     // std::cout << "Output." << std::endl;
     // for (auto out : output_values) {
     //     std::cout << out << ", ";
@@ -159,6 +176,7 @@ int AiPlayer::make_decision() {
     // dist_to_goal2(0);
 
     std::fill(output_values.begin(), output_values.end(), 0);
+    std::fill(hidden_values.begin(), hidden_values.end(), 0);
     
     return move;
 }
@@ -328,4 +346,8 @@ float AiPlayer::threat_behind() {
     }
     
     return false;
+}
+
+float AiPlayer::sigmoid(float x) {
+    return 1 / (1 + std::exp(-x));
 }

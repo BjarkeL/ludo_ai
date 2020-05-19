@@ -11,13 +11,16 @@
 #include <map>
 #include <fstream>
 #include <array>
+#include <math.h>
 
 
 #define INPUTS 9
 #define OUTPUTS 1
+#define HIDDEN 4
 #define PIECES 4
-#define WEIGHTS1 INPUTS*OUTPUTS
-#define C_SIZE WEIGHTS1 // Size of a chromosome.
+#define WEIGHTS1 INPUTS*HIDDEN
+#define WEIGHTS2 HIDDEN*OUTPUTS
+#define C_SIZE WEIGHTS1+WEIGHTS2 // Size of a chromosome.
 
 
 struct BinaryVal {
@@ -154,6 +157,11 @@ private:
      * */
     float threat_behind();
 
+    /**
+     * The logistic transfer function.
+     * */
+    float sigmoid(float x);
+
     int current_square = 0;
     int current_chromosome = 0;
 
@@ -169,6 +177,7 @@ private:
     
     // Network:
     std::array<float, PIECES> output_values;
+    std::array<float, HIDDEN> hidden_values;
 
 
     std::ofstream data_out;

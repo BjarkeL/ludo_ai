@@ -67,6 +67,8 @@ fstream
 -
 array
 -
+math.h
+-
 
 /home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/main.cpp
 iostream
