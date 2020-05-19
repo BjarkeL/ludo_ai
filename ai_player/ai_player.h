@@ -14,8 +14,8 @@
 
 
 #define INPUTS 9
-#define OUTPUTS 4
-#define ALL_PIECES INPUTS*OUTPUTS
+#define OUTPUTS 1
+#define PIECES 4
 #define WEIGHTS1 INPUTS*OUTPUTS
 #define C_SIZE WEIGHTS1 // Size of a chromosome.
 
@@ -96,53 +96,48 @@ private:
      * Returns the piece to move if it's possible to move out of home.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> move_out();
+    float move_out();
 
     /**
      * Returns the piece to move if it's possible to move into base.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> move_in();
+    float move_in();
 
     /**
      * Returns the piece to move if it's possible to move into goal.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> move_to_goal();
+    float move_to_goal();
 
     /**
      * Returns the first piece that can move to a globe.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> move_to_globe();
+    float move_to_globe();
 
     /**
      * Returns the first piece that can move to a star.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> move_to_star();
+    float move_to_star();
 
     /**
      * Returns the first piece that can move onto another of it's own.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> stack_piece();
+    float stack_piece();
 
     /**
      * Returns the first piece to move that can beat an opponent piece.
      * Returns -1 otherwise.
      * */
-    std::array<bool,4> beat_opponent_piece();
-
-    /**
-     * Return the distance to the goal as a 6 bit binary value.
-     * */
-    std::array<bool,6> dist_to_goal(int piece);
+    float beat_opponent_piece();
 
     /**
      * Return the distance to the goal as value between 0 and 1.
      * */
-    float dist_to_goal2(int piece);
+    float dist_to_goal();
 
     /**
      * Return the number of opponents on a given square.
@@ -157,13 +152,12 @@ private:
     /**
      * Returns true if there is an enemy within 6 behind you.
      * */
-    std::array<bool,4> threat_behind();
+    float threat_behind();
+
+    int current_square = 0;
+    int current_chromosome = 0;
 
     std::vector<int> options;
-    std::vector<int> position_vector;
-
-    std::vector<int> globe_positions = {8, 21, 34, 47};
-    std::vector<int> star_positions = {5, 11, 18, 24, 31, 37, 44, 50};
 
     std::random_device rd;
     std::vector<std::array<float,C_SIZE>> chromosomes;
@@ -171,15 +165,14 @@ private:
     std::multimap<int, std::array<float,C_SIZE>, std::greater<int>> sorted_chromosomes;
     std::vector<int> scores;
 
+    std::vector<std::function<float(void)>> moves;
+    
     // Network:
-    std::array<float, ALL_PIECES> input_values;
-    std::array<float, OUTPUTS> output_values;
+    std::array<float, PIECES> output_values;
 
-    std::vector<std::function<std::array<bool,4>()>> moves;
-
-    int current_chromosome = 0;
 
     std::ofstream data_out;
+
 
     bool learning = true;
     std::pair<int, std::array<float,C_SIZE>> best_chromosome;
