@@ -15,7 +15,7 @@
 
 #define INPUTS 36
 #define OUTPUTS 4
-#define HIDDEN_SIZE 30
+#define HIDDEN_SIZE 100
 #define WEIGHTS1 INPUTS*HIDDEN_SIZE
 #define WEIGHTS2 HIDDEN_SIZE*OUTPUTS
 #define C_SIZE WEIGHTS1+WEIGHTS2 // Size of a chromosome.
@@ -173,7 +173,7 @@ private:
     std::vector<int> scores;
 
     // Network:
-    std::array<bool, INPUTS> input_values;
+    std::array<float, INPUTS> input_values;
     std::array<float, HIDDEN_SIZE> hidden_values;
     std::array<float, OUTPUTS> output_values;
 
