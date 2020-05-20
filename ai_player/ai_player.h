@@ -14,34 +14,17 @@
 #include <math.h>
 
 
+#define INIT_BIAS -1.5
 #define INPUTS 9
 #define OUTPUTS 1
-#define HIDDEN 4
+#define HIDDEN 1
 #define PIECES 4
+#define BIAS_WEIGHTS HIDDEN
 #define WEIGHTS1 INPUTS*HIDDEN
 #define WEIGHTS2 HIDDEN*OUTPUTS
-#define C_SIZE WEIGHTS1+WEIGHTS2 // Size of a chromosome.
+#define C_SIZE WEIGHTS1+WEIGHTS2+BIAS_WEIGHTS // Size of a chromosome.
 
 
-struct BinaryVal {
-    int size;
-    char* bin_val = new char[size];
-    BinaryVal() : size(6) {};
-    void change_size(int s) { size = s; };
-    void set_val(int value) {
-        int val = value;
-        for (int i = 0; i < size; i++) {
-            bin_val[i] = val%2;
-            val /= 2;
-        }
-    }
-    bool operator [] (int i) { return bin_val[size-1-i]; };
-    void print() {
-        for (int i = size-1; i >= 0; i--) { std::cout << (bool)bin_val[i]; }
-        std::cout << std::endl;
-    }
-    void destroy() { delete [] bin_val; };
-};
 
 class AiPlayer : public iplayer {
 public:
@@ -178,6 +161,7 @@ private:
     // Network:
     std::array<float, PIECES> output_values;
     std::array<float, HIDDEN> hidden_values;
+    float bias = INIT_BIAS;
 
 
     std::ofstream data_out;
