@@ -42,7 +42,7 @@ void AiPlayer::init_chromosomes(int x) {
     best_chromosome = std::pair<int, std::array<float,C_SIZE>>(0, chromosomes[0]);
 
     // Open filestream
-    // data_out.open("chromosome.txt");
+    data_out.open("chromosome.txt");
     
 }
 
@@ -64,14 +64,20 @@ void AiPlayer::evolve_generation() {
     }
 
     std::cout << std::string(15,'*') << std::endl;
-    if ((*sorted_chromosomes.begin()).first >= best_chromosome.first) {
+    if (sorted_chromosomes.begin()->first >= best_chromosome.first) {
         best_chromosome = *sorted_chromosomes.begin();
         std::cout << "Best so far! " << best_chromosome.first << " wins." << std::endl;
     } else {
-        std::cout << "Not best but " << (*sorted_chromosomes.begin()).first << " wins!" << std::endl;
+        std::cout << "Not best but " << sorted_chromosomes.begin()->first << " wins!" << std::endl;
     }
 
-    // data_out << (*sorted_chromosomes.begin()).first << std::endl; // Prints the amount of wins.
+    // std::cout << "Best chromosome this gen: ";
+    // for (auto x : sorted_chromosomes.begin()->second) {
+    //     std::cout << std::setw(10) << std::left << x << ", ";
+    // }
+    // std::cout << std::endl;
+
+    data_out << (*sorted_chromosomes.begin()).first << std::endl; // Prints the amount of wins.
 
     std::multimap<int, std::array<float,C_SIZE>>::iterator sorted_iter1 = sorted_chromosomes.begin();
     std::multimap<int, std::array<float,C_SIZE>>::iterator sorted_iter2 = sorted_chromosomes.begin();
@@ -81,15 +87,30 @@ void AiPlayer::evolve_generation() {
     //     crossover((*sorted_iter1).second, (*sorted_iter2).second);
     //     ++sorted_iter1;
     // }
+    
+    // Pick a random one to mutate
+    // std::mt19937 generator(rd());
+    // std::uniform_int_distribution<int> dist(0,std::floor(chromosomes.size()/3.)+1); // This works for 30 chromosomes...
+    // int m = dist(generator);
+    // int mutation = 0;
+    // std::cout << "Max random: " << std::floor((chromosomes.size())/3.)+1 << std::endl;
 
-    new_generation.push_back((*sorted_iter1).second); // Add the best parent first to avoid adding it multiple times.
+    new_generation.push_back(sorted_iter1->second); // Add the best parent first to avoid adding it multiple times.
     int tmp1 = 1;
     for (int i = 1; i < 10; i++) {
         int tmp2 = 0;
         ++sorted_iter2;
+        new_generation.push_back((*sorted_iter2).second); // Only adds the second parent once.
+        sorted_iter1 = sorted_chromosomes.begin(); // Resets the first chromosome.
         while (tmp2++ < tmp1) {
             // std::cout << tmp2 << ", ";
-            crossover((*sorted_iter1).second, (*sorted_iter2).second);
+            // std::cout << "M: " << m << ", mutation; " << mutation << std::endl;
+            // if (mutation++ == m) {
+            //     crossover(sorted_iter1->second, sorted_iter2->second, true);
+            // } else {
+            //     crossover(sorted_iter1->second, sorted_iter2->second, false);
+            // }
+            crossover(sorted_iter1->second, sorted_iter2->second, true);
             ++sorted_iter1;
             if (new_generation.size() >= chromosomes.size()) {
                 break;
@@ -101,25 +122,39 @@ void AiPlayer::evolve_generation() {
         // std::cout << std::endl;
         tmp1++;
     }
+    // std::cout << "New gen size: " << new_generation.size() << std::endl;
 
-    // Pick a random one to mutate
-    std::mt19937 generator(rd());
-    std::uniform_int_distribution<int> dist(0,chromosomes.size()-1);
-    int m = dist(generator);
-    while (m%3 == 0) {
-        m = dist(generator);
-    }
-    // Replace chromosomes with the new generation.
-    for (int i = 0; i < chromosomes.size(); i++) {
-        if (i == m) {
-            mutate(new_generation[i]);
-        }
-        chromosomes[i] = new_generation[i];
-    }
+    
+    // while (m%3 == 0) {
+    //     m = dist(generator);
+    // }
+    // // Replace chromosomes with the new generation.
+    // for (int i = 0; i < chromosomes.size(); i++) {
+    //     if (i == m) {
+    //         mutate(new_generation[i]);
+    //     }
+    //     chromosomes[i] = new_generation[i];
+    // }
 
     // std::uniform_real_distribution<> bias_dist(-0.05, 0.05);
     // bias += bias_dist(generator);
     // std::cout << bias << std::endl;
+
+    // for (auto x : sorted_chromosomes) {
+    //     std::cout << "Wins: " << x.first << ", Cromosome: ";
+    //     for (auto y : x.second) {
+    //         std::cout << y << ", ";
+    //     }
+    //     std::cout << std::endl;
+    // }
+    // std::cout << std::endl;
+    // for (auto x : new_generation) {
+    //     std::cout << "Chromosome: ";
+    //     for (auto y : x) {
+    //         std::cout << std::setw(10) << std::left << y << ", ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 
     // Reset for new generation.
     current_chromosome = 0;
@@ -196,6 +231,12 @@ int AiPlayer::make_decision() {
             move = i;
         }
     }
+
+    // std::cout << "Moves available: ";
+    // for (auto x : options) {
+    //     std::cout << x << ", ";
+    // }
+    // std::cout << std::endl << "Chosen move: " << move << std::endl;
     
     // threat_behind();
     // dist_to_goal2(0);
@@ -207,14 +248,14 @@ int AiPlayer::make_decision() {
 
 /******************** GA Internal ********************/
 
-void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> c2) {
+void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> c2, bool mutation) {
     
     // Merge together every n bits.
     std::array<float,C_SIZE> tmp_c1;
     std::array<float,C_SIZE> tmp_c2;
     bool flip = false;
     for (int i = 0; i < c1.size(); i++) {
-        if (i%3 == 0) {
+        if (i%2 == 0) {
             flip = !flip;
         }
         if (flip) {
@@ -227,8 +268,20 @@ void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> 
             tmp_c2[i] = c1[i];
         }
     }
+    // std::mt19937 generator(rd());
+    // std::uniform_int_distribution<int> c1orc2(0,1);
+    // if (mutation && c1orc2(generator)) {
+    //     // std::cout << "Mutating c1";
+    //     mutate(tmp_c1);
+    // } else if (mutation) {
+    //     // std::cout << "Mutating c2";
+    //     mutate(tmp_c2);
+    // }
+    // std::cout << std::endl;
     
-    
+    mutate(tmp_c1);
+    mutate(tmp_c2);
+
     // std::mt19937 generator(rd());
     // std::uniform_int_distribution<int> dist(1,c1.size()-1);
 
@@ -244,7 +297,7 @@ void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> 
     //     }
     // }
 
-    new_generation.push_back(c2); // Adds the second parent since the first repeats multiple times.
+    // new_generation.push_back(c2); // Adds the second parent since the first repeats multiple times.
     new_generation.push_back(tmp_c1);
     new_generation.push_back(tmp_c2);
     
@@ -255,9 +308,19 @@ void AiPlayer::mutate(std::array<float,C_SIZE>& c) {
 
     // Replace every n genes with newly generated ones.
     std::mt19937 generator(rd());
-    std::uniform_real_distribution<> dist(0.0,1.0);
-    for (int i = 0; i < c.size(); i+=2) { // Replace every other.
-        c[i] = dist(generator);
+    // std::uniform_real_distribution<> dist(0.0,1.0);
+    // for (int i = 0; i < c.size(); i+=2) { // Replace every other.
+    //     c[i] = dist(generator);
+    // }
+
+    std::uniform_real_distribution<> dist2(-0.1,0.1);
+    for (auto g : c) {
+        float r = dist2(generator);
+        if (g+r < 0 || g+r > 1.0) {
+            g -= r;
+        } else {
+            g += r;
+        }
     }
 
 

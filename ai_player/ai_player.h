@@ -12,12 +12,13 @@
 #include <fstream>
 #include <array>
 #include <math.h>
+#include <iomanip>
 
 
 #define INIT_BIAS -1.5
 #define INPUTS 9
 #define OUTPUTS 1
-#define HIDDEN 1
+#define HIDDEN 3
 #define PIECES 4
 #define BIAS_WEIGHTS HIDDEN
 #define WEIGHTS1 INPUTS*HIDDEN
@@ -66,7 +67,7 @@ private:
      * Takes two chromosomes and mixes them into two new offspring.
      * Adds the two new chromosomes to the list of children.
      * */
-    void crossover(std::array<float,C_SIZE> c1, std::array<float,C_SIZE> c2);
+    void crossover(std::array<float,C_SIZE> c1, std::array<float,C_SIZE> c2, bool mutation);
 
     /**
      * Swap two random genes in a chromosome.

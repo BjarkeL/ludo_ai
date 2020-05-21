@@ -97,15 +97,16 @@ int main()
 
         auto stop2 = std::chrono::high_resolution_clock::now();
         // player_1.evolve_generation();
-        std::cout << "Generation number: " << j+1 << " / " << n_generations << "." << std::endl;
+        std::cout << "Generation number: " << std::setw(4) << j+1 << " / " << n_generations << "." << std::endl;
         auto games_duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop1-start);
         auto evolution_duration = std::chrono::duration_cast<std::chrono::microseconds>(stop2-stop1);
-        std::cout << "Games played: " << population*games_per_generation << " in " << games_duration.count() << " milliseconds." << std::endl;
-        std::cout << "Evolved in " << evolution_duration.count() << " microseconds." << std::endl;
+        std::cout << "Games played: " << population*games_per_generation << " in " << std::setw(5) << games_duration.count() << " milliseconds." << std::endl;
+        // std::cout << "Evolved in " << evolution_duration.count() << " microseconds." << std::endl;
+        std::cout << "Time left: ~" << std::setprecision(5) << std::setw(6) << std::left << (games_duration.count()/1000.)*(n_generations-j+1)/60 << " minutes." << std::endl;;
         std::cout << std::string(15,'*') << std::endl;
     }
 
-    int trial_games = 50000;
+    int trial_games = 100000;
     
     int wins_1 = 0;
     int wins_2 = 0;
