@@ -49,9 +49,9 @@ int main()
     player_random player_2;
     player_random player_3;
 
-    int population = 30; // 30
+    int population = 100; // 30
     int games_per_generation = 100; // 100
-    int n_generations = 500; // 1000
+    int n_generations = 100; // 1000
 
     player_0.init_chromosomes(population);
     helper_0.init_chromosomes(population);

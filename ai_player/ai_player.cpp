@@ -37,7 +37,8 @@ void AiPlayer::init_chromosomes(int x) {
         scores.push_back(0);
     }
 
-    std::fill(hidden_values.begin(), hidden_values.end(), 0);
+    std::fill(output_values.begin(), output_values.end(), 0);
+    // std::fill(hidden_values.begin(), hidden_values.end(), 0);
 
     best_chromosome = std::pair<int, std::array<float,C_SIZE>>(0, chromosomes[0]);
 
@@ -77,7 +78,7 @@ void AiPlayer::evolve_generation() {
     // }
     // std::cout << std::endl;
 
-    data_out << (*sorted_chromosomes.begin()).first << std::endl; // Prints the amount of wins.
+    data_out << sorted_chromosomes.begin()->first << std::endl; // Prints the amount of wins.
 
     std::multimap<int, std::array<float,C_SIZE>>::iterator sorted_iter1 = sorted_chromosomes.begin();
     std::multimap<int, std::array<float,C_SIZE>>::iterator sorted_iter2 = sorted_chromosomes.begin();
@@ -100,7 +101,7 @@ void AiPlayer::evolve_generation() {
     for (int i = 1; i < 10; i++) {
         int tmp2 = 0;
         ++sorted_iter2;
-        new_generation.push_back((*sorted_iter2).second); // Only adds the second parent once.
+        new_generation.push_back(sorted_iter2->second); // Only adds the second parent once.
         sorted_iter1 = sorted_chromosomes.begin(); // Resets the first chromosome.
         while (tmp2++ < tmp1) {
             // std::cout << tmp2 << ", ";
@@ -192,28 +193,8 @@ int AiPlayer::make_decision() {
 
         int chromosome_index = 0;
         for (auto func : moves) {
-            for (int i = 0; i < HIDDEN; i++) {
-                hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*func();
-            }
+            output_values[op] += chromosomes[current_chromosome][chromosome_index++]*func();
         }
-        // Adds the hidden bias.
-        for (int i = 0; i < HIDDEN; i++) {
-            hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*bias;
-        }
-        for (int i = 0; i < HIDDEN; i++) {
-            output_values[op] += chromosomes[current_chromosome][chromosome_index++]*sigmoid(hidden_values[i]);
-        }
-        // float avg_hidden = 0;
-        // for (auto h : hidden_values) {
-        //     avg_hidden += sigmoid(h)/hidden_values.size();
-        // }
-        // std::cout << "Average hidden: " << avg_hidden << std::endl;
-        // std::cout << "Hidden:" << std::endl;
-        // for (auto x : hidden_values) {
-        //     std::cout << sigmoid(x) << ", " << x << ", ";
-        // }
-        // std::cout << std::endl;
-        std::fill(hidden_values.begin(), hidden_values.end(), 0);
     }
     
     // std::cout << "Output." << std::endl;
@@ -268,7 +249,7 @@ void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> 
             tmp_c2[i] = c1[i];
         }
     }
-    // std::mt19937 generator(rd());
+    std::mt19937 generator(rd());
     // std::uniform_int_distribution<int> c1orc2(0,1);
     // if (mutation && c1orc2(generator)) {
     //     // std::cout << "Mutating c1";
@@ -279,8 +260,13 @@ void AiPlayer::crossover(std::array<float,C_SIZE> c1, std::array<float, C_SIZE> 
     // }
     // std::cout << std::endl;
     
-    mutate(tmp_c1);
-    mutate(tmp_c2);
+    std::uniform_int_distribution<int> mutation_chance(0,1); // 50% percent chance of mutation.
+    if (!mutation_chance(generator)) {
+        mutate(tmp_c1);
+    }
+    if (!mutation_chance(generator)) {
+        mutate(tmp_c2);
+    }
 
     // std::mt19937 generator(rd());
     // std::uniform_int_distribution<int> dist(1,c1.size()-1);

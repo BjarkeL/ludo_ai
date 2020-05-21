@@ -15,15 +15,11 @@
 #include <iomanip>
 
 
-#define INIT_BIAS -1.5
 #define INPUTS 9
 #define OUTPUTS 1
-#define HIDDEN 3
 #define PIECES 4
-#define BIAS_WEIGHTS HIDDEN
-#define WEIGHTS1 INPUTS*HIDDEN
-#define WEIGHTS2 HIDDEN*OUTPUTS
-#define C_SIZE WEIGHTS1+WEIGHTS2+BIAS_WEIGHTS // Size of a chromosome.
+#define WEIGHTS1 INPUTS*OUTPUTS
+#define C_SIZE WEIGHTS1 // Size of a chromosome.
 
 
 
@@ -161,8 +157,6 @@ private:
     
     // Network:
     std::array<float, PIECES> output_values;
-    std::array<float, HIDDEN> hidden_values;
-    float bias = INIT_BIAS;
 
 
     std::ofstream data_out;
