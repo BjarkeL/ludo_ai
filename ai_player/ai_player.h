@@ -15,7 +15,7 @@
 #include <iomanip>
 
 
-#define INIT_BIAS -1.5
+#define INIT_BIAS -2.0
 #define INPUTS 9
 #define OUTPUTS 1
 #define HIDDEN 3
@@ -67,7 +67,7 @@ private:
      * Takes two chromosomes and mixes them into two new offspring.
      * Adds the two new chromosomes to the list of children.
      * */
-    void crossover(std::array<float,C_SIZE> c1, std::array<float,C_SIZE> c2, bool mutation);
+    void crossover(std::array<float,C_SIZE> c1, std::array<float,C_SIZE> c2);
 
     /**
      * Swap two random genes in a chromosome.
