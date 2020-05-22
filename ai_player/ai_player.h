@@ -18,7 +18,7 @@
 #define INIT_BIAS -2.0
 #define INPUTS 9
 #define OUTPUTS 1
-#define HIDDEN 3
+#define HIDDEN 2
 #define PIECES 4
 #define BIAS_WEIGHTS HIDDEN
 #define WEIGHTS1 INPUTS*HIDDEN
