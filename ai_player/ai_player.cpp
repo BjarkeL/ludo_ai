@@ -125,7 +125,9 @@ void AiPlayer::evolve_generation() {
     }
     // std::cout << "New gen size: " << new_generation.size() << std::endl;
 
-    
+    for (int i = 0; i < chromosomes.size(); i++) {
+        chromosomes[i] = new_generation[i];
+    }
     // while (m%3 == 0) {
     //     m = dist(generator);
     // }
