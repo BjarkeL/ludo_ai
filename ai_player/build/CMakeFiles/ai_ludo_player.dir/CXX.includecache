@@ -87,6 +87,10 @@ ai_player.h
 /home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ai_player/ai_player.h
 chrono
 -
+fstream
+-
+iomanip
+-
 
 /home/bjarke/Documents/Uni_8th_semester/tools_for_ai/ludo_ai/ludo_game_code/Domain-Code/dice.h
 random

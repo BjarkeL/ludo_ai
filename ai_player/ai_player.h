@@ -50,6 +50,13 @@ public:
      * */
     void set_learning(bool learn);
 
+    /**
+     * Get methods for details about the network.
+     * */
+    int get_inputs() {return INPUTS;};
+    int get_outputs() {return OUTPUTS;};
+    int get_number_of_weights() {return C_SIZE;};
+
 private:
     int make_decision();
 
