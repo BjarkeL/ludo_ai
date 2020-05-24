@@ -18,7 +18,7 @@
 #define INIT_BIAS -2.0
 #define INPUTS 14
 #define OUTPUTS 1
-#define HIDDEN 3
+#define HIDDEN 2
 #define PIECES 4
 #define BIAS_WEIGHTS HIDDEN
 #define WEIGHTS1 INPUTS*HIDDEN
@@ -53,6 +53,15 @@ public:
      * Setting learning to false uses the best chromosome found so far.
      * */
     void set_learning(bool learn);
+
+    /**
+     * Get methods for details about the network.
+     * */
+    int get_inputs() {return INPUTS;};
+    int get_hidden() {return HIDDEN;};
+    int get_outputs() {return OUTPUTS;};
+    float get_bias() {return INIT_BIAS;};
+    int get_number_of_weights() {return C_SIZE;};
 
 private:
     int make_decision();
