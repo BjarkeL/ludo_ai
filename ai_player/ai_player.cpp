@@ -160,7 +160,7 @@ int AiPlayer::make_decision() {
     }
 
     // If there are more than one valid move use the network to determine next move.
-    // std::cout << "Dice: " << dice << std::endl;
+    std::cout << "Dice: " << dice << std::endl;
     // Add the enemy positions to the inputs.
     int input_index = 4;
     for (int i = 2; i < input_values.size(); i++) {
@@ -204,6 +204,10 @@ int AiPlayer::make_decision() {
         std::fill(hidden_values.begin(), hidden_values.end(), 0);
     }
 
+    for (auto o : output_values) {
+        std::cout << o << ", ";
+    }
+    std::cout << std::endl;
 
     int move = options[0];
     float val = output_values[move];
