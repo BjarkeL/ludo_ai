@@ -16,7 +16,7 @@
 
 
 #define INIT_BIAS -2.0
-#define INPUTS 9
+#define INPUTS 14
 #define OUTPUTS 1
 #define HIDDEN 3
 #define PIECES 4
@@ -160,6 +160,7 @@ private:
     std::vector<std::function<float(void)>> moves;
     
     // Network:
+    std::array<float, INPUTS> input_values;
     std::array<float, PIECES> output_values;
     std::array<float, HIDDEN> hidden_values;
     float bias = INIT_BIAS;

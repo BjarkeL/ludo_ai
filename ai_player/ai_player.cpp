@@ -161,14 +161,27 @@ int AiPlayer::make_decision() {
 
     // If there are more than one valid move use the network to determine next move.
     // std::cout << "Dice: " << dice << std::endl;
+    // Add the enemy positions to the inputs.
+    int input_index = 4;
+    for (int i = 2; i < input_values.size(); i++) {
+        input_values[i] = (float)(position[input_index++]+2.)/57.;
+    }
+    if (dice != 6) {
+        input_values[1] = dice/6.;
+        std::cout << dice/6. << std::endl;
+        for (auto i : input_values) {
+            std::cout << i << ", ";
+        }
+        std::cout << std::endl;
+    }
     for (auto op : options) {
-        current_square = position[op];
+        input_values[0] = position[op];
         // std::cout << "Option: " << op << ", pos: " << current_square << ", func val: ";
 
         int chromosome_index = 0;
-        for (auto func : moves) {
+        for (auto input : input_values) {
             for (int i = 0; i < HIDDEN; i++) {
-                hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*func();
+                hidden_values[i] += chromosomes[current_chromosome][chromosome_index++]*input;
             }
         }
         // Adds the hidden bias.
